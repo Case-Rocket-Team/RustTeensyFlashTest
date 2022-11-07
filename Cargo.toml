@@ -8,6 +8,9 @@ edition = "2021"
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
 embedded-hal = "0.2.3"
+imxrt-hal = "0.4.5"
+typenum = "1.15.0"
+
 # Remove me if you don't want logging
 log = "0.4.11"
 teensy4-panic = "0.2.0"

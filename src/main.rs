@@ -1,43 +1,65 @@
 #![no_std]
 #![no_main]
 
-use teensy4_bsp as bsp;
+use cortex_m_rt;
+
 use teensy4_panic as _;
 
 mod logging;
+mod flash;
+mod concurrency;
+mod avionics;
+mod util;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
-    log::info!("Starting Teensy");
-    let board_p = bsp::Peripherals::take().unwrap();
-    let cortex_p = cortex_m::Peripherals::take().unwrap();
+    let mut avionics = avionics::Avionics::take();
 
-    // Reduce the number of pins to those specific
-    // to the Teensy 4.1.
-    let pins = bsp::pins::t41::from_pads(board_p.iomuxc);
-
-    // See the `logging` module docs for more info.
-    assert!(logging::init().is_ok());
-
-    // Addresses 0x70000000 and above go to the flash chip.
-    const ADDR: u32 = 0x70000000;
-    const TEST_INT: u32 = 123;
-    let test_int_ptr: * mut u32 = ADDR as *mut u32;
-
-    let mut success = false;
+    log::info!("Hello world!");
     
-    unsafe {
-        *test_int_ptr = TEST_INT;
-        *test_int_ptr += 1;
-        log::info!("Value on chip is: {}", *test_int_ptr);
-        success = *test_int_ptr == TEST_INT;
-    }
+
+    /*match spi4.set_clock_speed(bsp::hal::spi::ClockSpeed(SPI_BAUD_RATE_HZ)) {
+        Ok(()) => {
+            log::info!("Set clock speed to {}Hz", SPI_BAUD_RATE_HZ);
+        }
+        Err(err) => {
+            loop {
+                delayer.delay_ms(1_000);
+                log::error!("Failed to set clock rate: {:?}", err)
+            }
+            /*panic!(
+                "Unable to set clock speed to {}Hz: {:?}",
+                SPI_BAUD_RATE_HZ, err
+            );*/
+        }
+    };*/
+
+    let mut write_byte = 0u8;
 
     loop {
-        if success {
-            log::info!("Successful R/W!");
-        } else {
-            log::info!("Failure :(")
-        }
+        avionics.delay(1_000);
+
+        let (manu, id) = avionics.flash.read_manufacturer_and_device_id();
+
+        log::info!("Found manufacturer {:x?} and device ID {:x?}", manu, id);
+
+        /*avionics.flash.write_enable();
+        avionics.flash.is_busy();*/
+
+        let test_addr = 0x00_00_00;
+
+        avionics.flash.erase_sector(test_addr);
+
+        avionics.delay(25);
+
+        avionics.flash.page_program(test_addr, [write_byte]);
+
+        avionics.delay(25);
+
+        let [read_byte] = avionics.flash.read_data::<1>(test_addr);
+
+        log::info!("Wrote {:x?} and read {:x?}!", write_byte, read_byte);
+
+        write_byte += 1;
     }
 }
