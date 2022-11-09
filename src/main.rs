@@ -50,11 +50,11 @@ fn main() -> ! {
 
         avionics.flash.erase_sector(test_addr);
 
-        avionics.delay(25);
+        //avionics.delay(25);
 
         avionics.flash.page_program(test_addr, [write_byte]);
 
-        avionics.delay(25);
+        //avionics.delay(25);
 
         let [read_byte] = avionics.flash.read_data::<1>(test_addr);
 
