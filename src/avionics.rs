@@ -1,14 +1,17 @@
-use imxrt_hal::{self, spi::SPI};
+use imxrt_hal::{self, spi::SPI, iomuxc::gpio::Pin};
 use teensy4_bsp as bsp;
 use typenum::{UTerm, UInt, B1, B0};
+use teensy4_bsp::t41::P1;
 
-use crate::{flash::W25Q64};
+use crate::{flash::W25Q64, logging::logging};
 
-pub struct Avionics {
-    pub flash: W25Q64,
+pub struct AbstractAvionics<P: Pin> {
+    pub flash: W25Q64<P>,
     pub spi: SPI<UInt<UInt<UInt<UTerm, B1>, B0>, B0>>,
     pub delayer: cortex_m::delay::Delay
 }
+
+pub type Avionics = AbstractAvionics<P1>;
 
 pub trait HasAvionics {
     fn avionics(&self) -> &'static mut Avionics;
@@ -26,7 +29,7 @@ pub static mut AVIONICS: Avionics = {
 
     let pins = bsp::pins::t41::from_pads(board.iomuxc);
 
-    let mut flash_cs_pin = bsp::hal::gpio::GPIO::new(pins.p10);
+    let mut flash_cs_pin = bsp::hal::gpio::GPIO::new(pins.p1);//pins.p10);
     flash_cs_pin.set_fast(true);
     let flash_cs = flash_cs_pin.output();
 
@@ -59,7 +62,7 @@ pub static mut AVIONICS: Avionics = {
         pins.p13
     );
     
-    Avionics {
+    AbstractAvionics {
         flash: W25Q64 {
             cs: flash_cs
         },
@@ -71,7 +74,7 @@ pub static mut AVIONICS: Avionics = {
     }
 };
 
-impl Avionics {
+impl<P: Pin> AbstractAvionics<P> {
     pub fn delay(&mut self, ms: u32) {
         self.delayer.delay_ms(ms)
     }

@@ -1,11 +1,13 @@
 use embedded_hal::{blocking::spi::Transfer, digital::v2::OutputPin};
+use imxrt_hal::{iomuxc::{gpio::{ Pin }, Pad}, gpio::{GPIO, Input, Output}};
+use typenum::{UInt, UTerm, B0, B1};
 use crate::avionics::{Avionics, avionics};
 
-pub struct W25Q64 {
-    pub cs: imxrt_hal::gpio::GPIO<teensy4_bsp::pins::t41::P10, imxrt_hal::gpio::Output>
+pub struct W25Q64<P: Pin> {
+    pub cs: GPIO<P, Output>
 }
 
-impl W25Q64 {
+impl<P: Pin> W25Q64<P> {
     #[inline(always)]
     pub fn select(&mut self) {
         self.cs.set_low().unwrap();

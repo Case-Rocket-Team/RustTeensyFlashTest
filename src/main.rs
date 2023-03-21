@@ -1,12 +1,12 @@
 #![no_std]
 #![no_main]
 
+use avionics::AVIONICS;
 use cortex_m_rt;
 
 use teensy4_panic as _;
 
-
-mod log;
+mod logging;
 mod flash;
 mod concurrency;
 mod avionics;
@@ -14,10 +14,9 @@ mod util;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
-    let mut avionics = avionics::Avionics::take();
-
     log::info!("Hello world!");
     
+    let mut avionics = unsafe { &mut AVIONICS };
 
     /*match spi4.set_clock_speed(bsp::hal::spi::ClockSpeed(SPI_BAUD_RATE_HZ)) {
         Ok(()) => {

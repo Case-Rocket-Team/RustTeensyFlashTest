@@ -1,6 +1,6 @@
 use core::{mem::size_of, slice, iter};
 
-use crate::avionics::{avionics, Avionics};
+use crate::avionics::{avionics, AbstractAvionics, Avionics};
 
 use super::packet_ids::PacketIDs;
 
