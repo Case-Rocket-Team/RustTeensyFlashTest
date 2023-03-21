@@ -5,7 +5,8 @@ use cortex_m_rt;
 
 use teensy4_panic as _;
 
-mod logging;
+
+mod log;
 mod flash;
 mod concurrency;
 mod avionics;

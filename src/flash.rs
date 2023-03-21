@@ -1,18 +1,8 @@
 use embedded_hal::{blocking::spi::Transfer, digital::v2::OutputPin};
-use crate::avionics::{Avionics, HasAvionics};
+use crate::avionics::{Avionics, avionics};
 
 pub struct W25Q64 {
-    pub avionics: * mut Avionics,
     pub cs: imxrt_hal::gpio::GPIO<teensy4_bsp::pins::t41::P10, imxrt_hal::gpio::Output>
-}
-
-// TODO: replace with macro
-impl HasAvionics for W25Q64 {
-    fn avionics(&self) -> &'static mut Avionics {
-        unsafe {
-            &mut *self.avionics
-        }
-    }
 }
 
 impl W25Q64 {
@@ -28,7 +18,7 @@ impl W25Q64 {
     
     pub fn send_instr<const TLENGTH: usize>(&mut self, mut bytes: [u8; TLENGTH]) -> [u8; TLENGTH] {
         self.select();
-        self.avionics().spi.transfer(&mut bytes).unwrap();
+        avionics().spi.transfer(&mut bytes).unwrap();
         self.unselect();
         bytes
     }
@@ -63,8 +53,8 @@ impl W25Q64 {
         self.write_enable();
         self.block_until_ready();
         self.select();
-        self.avionics().spi.transfer(&mut part_1).ok();
-        self.avionics().spi.transfer(&mut data).ok();
+        avionics().spi.transfer(&mut part_1).ok();
+        avionics().spi.transfer(&mut data).ok();
         self.unselect();
     }
 
@@ -80,8 +70,8 @@ impl W25Q64 {
 
         self.block_until_ready();
         self.select();
-        self.avionics().spi.transfer(&mut part_1).unwrap();
-        self.avionics().spi.transfer(&mut received).unwrap();
+        avionics().spi.transfer(&mut part_1).unwrap();
+        avionics().spi.transfer(&mut received).unwrap();
         self.unselect();
 
         received
