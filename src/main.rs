@@ -1,8 +1,9 @@
 #![no_std]
 #![no_main]
 
-use avionics::AVIONICS;
 use cortex_m_rt;
+
+use crate::avionics::{init_avionics, avionics};
 
 use teensy4_panic as _;
 
@@ -14,9 +15,9 @@ mod util;
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
+    init_avionics();
+
     log::info!("Hello world!");
-    
-    let mut avionics = unsafe { &mut AVIONICS };
 
     /*match spi4.set_clock_speed(bsp::hal::spi::ClockSpeed(SPI_BAUD_RATE_HZ)) {
         Ok(()) => {
@@ -37,9 +38,9 @@ fn main() -> ! {
     let mut write_byte = 0u8;
 
     loop {
-        avionics.delay(1_000);
+        avionics().delay(1_000);
 
-        let (manu, id) = avionics.flash.read_manufacturer_and_device_id();
+        let (manu, id) = avionics().flash.read_manufacturer_and_device_id();
 
         log::info!("Found manufacturer {:x?} and device ID {:x?}", manu, id);
 
@@ -48,15 +49,15 @@ fn main() -> ! {
 
         let test_addr = 0x00_00_00;
 
-        avionics.flash.erase_sector(test_addr);
+        avionics().flash.erase_sector(test_addr);
 
         //avionics.delay(25);
 
-        avionics.flash.page_program(test_addr, [write_byte]);
+        avionics().flash.page_program(test_addr, [write_byte]);
 
         //avionics.delay(25);
 
-        let [read_byte] = avionics.flash.read_data::<1>(test_addr);
+        let [read_byte] = avionics().flash.read_data::<1>(test_addr);
 
         log::info!("Wrote {:x?} and read {:x?}!", write_byte, read_byte);
 

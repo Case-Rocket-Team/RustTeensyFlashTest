@@ -37,7 +37,7 @@ enum LogStrIteratorStage {
     DataByte
 }
 
-struct LogStrIterator<'a> {
+pub struct LogStrIterator<'a> {
     str_iter: slice::Iter<'a, u8>,
     count: usize,
     length_remaining: usize,
