@@ -23,7 +23,7 @@ impl Avionics {
 
         let pins = bsp::pins::t41::from_pads(board.iomuxc);
 
-        let mut flash_cs_pin = bsp::hal::gpio::GPIO::new(pins.p10);
+        let mut flash_cs_pin = bsp::hal::gpio::GPIO::new(pins.p1);
         flash_cs_pin.set_fast(true);
         let flash_cs = flash_cs_pin.output();
 

@@ -3,7 +3,7 @@ use crate::avionics::{Avionics, HasAvionics};
 
 pub struct W25Q64 {
     pub avionics: * mut Avionics,
-    pub cs: imxrt_hal::gpio::GPIO<teensy4_bsp::pins::t41::P10, imxrt_hal::gpio::Output>
+    pub cs: imxrt_hal::gpio::GPIO<teensy4_bsp::pins::t41::P1, imxrt_hal::gpio::Output>
 }
 
 // TODO: replace with macro
